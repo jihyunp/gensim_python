@@ -17,7 +17,7 @@ import os
 
 
 
-data_prefix = '/Users/jihyun/Documents/jihyun/research/topicmodel/codes/dtm/gensim_python/nih_test/data/'
+data_prefix = '/Users/jihyun/Documents/jihyun/research/topicmodel/codes/dtm/gensim_python/nih_test/data_test/'
 if not os.path.exists(data_prefix):
     os.makedirs(data_prefix)
 
@@ -29,15 +29,13 @@ corpus = cp.load(open(gensim_X_file, 'rb'))
 dictionary = cp.load(open(gensim_dict_file, 'rb'))
 
 ## Sample Timeslices
-year_file = '/Users/jihyun/Documents/jihyun/research/topicmodel/data/years.txt'
+year_file = '/Users/jihyun/Documents/jihyun/research/topicmodel/data/years_gensim.txt'
 years = []
 import csv
 csvreader = csv.reader(open(year_file))
-i = 0
 for line in csvreader:
     for item in line:
         years.append(int(item))
-        i += 1
 
 
 import matplotlib.pyplot as plt
@@ -46,7 +44,7 @@ minyear = int(np.min(years))
 
 
 hist = np.histogram(years, bins=maxyear-minyear, range=(minyear, maxyear) )
-hist[0][0] += 2
+timeslices = hist[0]
 
 
 #print(minyear)
@@ -55,7 +53,6 @@ hist[0][0] += 2
 #plt.xlabel(np.unique(years))
 #plt.savefig('fig.pdf', format='pdf')
 
-timeslices = hist[0]
 
 
 
@@ -71,18 +68,42 @@ timeslices = hist[0]
 #
 # #dtm_path = '/Users/jihyun/Documents/jihyun/research/topicmodel/dtm/dtm-master/bin/dtm-darwin64'
 dtm_path = '/Users/jihyun/Documents/jihyun/research/topicmodel/dtm/dtm-master/bin/dtm-darwin64'
-
-
-model = wrappers.DtmModel(dtm_path, corpus, timeslices, num_topics=20, id2word=dictionary, prefix=data_prefix,
-                          initialize_lda=True)
+#
+#
+# model = wrappers.DtmModel(dtm_path, corpus, timeslices, num_topics=50, id2word=dictionary, prefix=data_prefix, initialize_lda=False)
 
 
 
 
 ## Run with partial data
-# timeslices = timeslices[:5]
-# numdocs = sum(timeslices)
-# corpus = corpus[:numdocs]
+
+
+dictionary.save(os.path.join(data_prefix, 'dictionary.dict'))
+
+vocFile = open(os.path.join(data_prefix, 'vocabulary.dat'), 'w')
+for word in dictionary.values ():
+    try:
+        vocFile.write(word+'\n')
+    except UnicodeEncodeError:
+        vocFile.write('Unreadable\n')
+        print(word)
+
+vocFile.close()
+print("Dictionary and Vocabulary files saved.")
+
+
+
+import datetime
+print(datetime.datetime.now())
+timeslices = timeslices[:5]
+numdocs = sum(timeslices)
+corpus = corpus[:numdocs]
+model = wrappers.DtmModel(dtm_path, corpus, timeslices, num_topics=50, id2word=dictionary, prefix=data_prefix,
+                          initialize_lda=True)
+print(datetime.datetime.now())
+
 # model = wrappers.DtmModel(dtm_path, corpus, timeslices, num_topics=50, id2word=dictionary, prefix=data_prefix,
-#                           initialize_lda=True)
-# Started at around 4:20
+#                           initialize_lda=False)
+
+
+# model.show_topics()
