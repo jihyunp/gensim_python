@@ -1,0 +1,5 @@
+plt.plot(hist[1][:22],hist[0], 'o-')
+plt.xlabel('Year')
+plt.ylabel('Number of Grants')
+plt.grid()
+plt.savefig('histogram.pdf')
