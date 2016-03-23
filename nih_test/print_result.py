@@ -37,14 +37,14 @@ for tid in range(total_num_topics):
         outfile2.write('\n')
 
 
-""" Below code can be removed """
-#
-#
-#
-#
+
+
+
+
 # # Plot
-# year_label = map(str, np.array(yid_year[::5], dtype=int))
-#
+year_label = map(str, np.array(yid_year[::5], dtype=int))
+
+""" Below code can be removed """
 # for tid in range(total_num_topics):
 # # tid = 0
 #     word2problist = {}
