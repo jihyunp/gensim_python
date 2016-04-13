@@ -8,68 +8,61 @@ import numpy as np
 import cPickle as cp
 import os
 import datetime
+import sys
+import matplotlib.pyplot as plt
 
 
-#dtm_path = '/Users/jihyun/Documents/jihyun/research/topicmodel/dtm/dtm-master/bin/dtm-darwin64'
-dtm_path = '/home/jihyunp/research/topicmodel/dtm/dtm_release/dtm/main'
+# Source the config file
+conf_file = sys.argv[1]
+execfile(conf_file)
 
-#data_prefix = '/Users/jihyun/Documents/jihyun/research/topicmodel/codes/dtm/gensim_python/nih_test/data_150K_4time/'
-data_prefix = '/home/jihyunp/research/topicmodel/codes/dtm/gensim_python/nih_test/data/data_150K_init/'
-data_train = '/home/jihyunp/research/topicmodel/codes/dtm/gensim_python/nih_test/data/data_150K_init/train_out/'
 if not os.path.exists(data_train):
     os.makedirs(data_train)
 
 
-lda_nzw_file = '/home/jihyunp/research/topicmodel/data/150K/subset1/nwz_gls_form.dat'
-
-from subprocess import call
-call(["cp", lda_nzw_file, data_train + 'initial-lda-ss.dat'])
-call(["touch", data_train + 'em_log.dat'])
-
-
-## Sample Doc (load doc)
-
-#gensim_X_file = '/Users/jihyun/Documents/jihyun/research/topicmodel/data/150K/bow_sparse_gensim.pkl'
-#gensim_dict_file = '/Users/jihyun/Documents/jihyun/research/topicmodel/data/150K/wid_word_4timeslices.pkl'
-
-gensim_X_file = '/home/jihyunp/research/topicmodel/data/150K/bow_sparse_gensim.pkl'
-gensim_dict_file = '/home/jihyunp/research/topicmodel/data/150K/wid_word.pkl'
+#from subprocess import call
+#call(["cp", lda_nzw_file, data_train + 'initial-lda-ss.dat'])
+#call(["touch", data_train + 'em_log.dat'])
 
 
 
 corpus = cp.load(open(gensim_X_file, 'rb'))
 dictionary = cp.load(open(gensim_dict_file, 'rb'))
 
-## Sample Timeslices
-year_pkl_file = '/home/jihyunp/research/topicmodel/data/150K/did_year.pkl'
+maxwid = 0
+for doc in corpus:
+    for tup in doc:
+        wid = tup[0]
+        if wid > maxwid:
+            maxwid = wid
+
+for id in dictionary.keys():
+    if id > maxwid:
+        del(dictionary[id])
+
+
+### Sample Timeslices
 
 years = cp.load(open(year_pkl_file,'rb'))
 for idx in np.argwhere(years==0).T[0]:
     years[idx] = years[idx-1]
-import matplotlib.pyplot as plt
-maxyear = int(np.max(years))
-minyear = int(np.min(years))
-
-
+#maxyear = int(np.max(years))
+#minyear = int(np.min(years))
+#
+#
 hist = np.histogram(years, bins=maxyear-minyear+1, range=(minyear, maxyear+1) )
-timeslices = hist[0]
-yid_year = hist[1]
-print(timeslices)
-
-
-#print(minyear)
-#print(maxyear)
-#plt.hist(years, bins=maxyear-minyear, range=(minyear, maxyear))
-#plt.xlabel(np.unique(years))
-#plt.savefig('fig.pdf', format='pdf')
-
+timeslices = hist[0][::-1]
+yid_year = hist[1][::-1]
+#print(timeslices)
+#
+#
+##print(minyear)
+##print(maxyear)
+##plt.hist(years, bins=maxyear-minyear, range=(minyear, maxyear))
+##plt.xlabel(np.unique(years))
+##plt.savefig('fig.pdf', format='pdf')
+#
 print("Data loading finished")
-
-
-
-
-
-
 
 
 
@@ -119,5 +112,7 @@ model.lambda_.shape = (model.num_topics, model.num_terms, len(model.time_slices)
 model.obs_.shape = (model.num_topics, model.num_terms, len(model.time_slices))
 
 
+print("Saving model..")
+cp.dump(model, open(data_prefix+'model.pkl', 'wb'))
 
 execfile('print_result.py')

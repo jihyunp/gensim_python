@@ -10,6 +10,11 @@ jihyunp@uci.edu
 import numpy as np
 import matplotlib.pyplot as plt
 
+plot_prefix = data_prefix + 'wfrom1992/'
+if not os.path.exists(plot_prefix):
+    os.makedirs(plot_prefix)
+
+
 
 total_num_topics = model.num_topics
 total_vocab_size = model.num_terms
@@ -148,7 +153,8 @@ for tid in range(total_num_topics):
     axes.legend(handles=linelist)
     axes.set_xticklabels(year_label)
     axes.set_title('Word Probabilities for Topic '+ str(tid))
-    fig.savefig(data_prefix + 'topic' + str(tid) +'.pdf')
+    axes.set_xlim([0, num_timeslices-1])
+    fig.savefig(plot_prefix + 'topic' + str(tid) +'.pdf')
     fig.clf()
 plt.close("all")
 
@@ -166,7 +172,8 @@ for tid in range(total_num_topics):
     axes.legend(handles=linelist)
     axes.set_xticklabels(year_label)
     axes.set_title('Marginal probabilities')
-    fig.savefig(data_prefix + 'topic' + str(tid) +'_marginal.pdf')
+    axes.set_xlim([0, num_timeslices-1])
+    fig.savefig(plot_prefix + 'topic' + str(tid) +'_marginal.pdf')
     fig.clf()
 plt.close("all")
 
@@ -191,7 +198,8 @@ for tid in range(total_num_topics):
         linelist.append(line)
     axes.legend(handles=linelist)
     axes.set_xticklabels(year_label)
-    fig.savefig(data_prefix + 'topic' + str(tid) +'_divbymarginal.pdf')
+    axes.set_xlim([0, num_timeslices-1])
+    fig.savefig(plot_prefix + 'topic' + str(tid) +'_divbymarginal.pdf')
     fig.clf()
 plt.close("all")
 
